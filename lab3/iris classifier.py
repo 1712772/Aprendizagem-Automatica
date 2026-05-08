@@ -9,7 +9,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns 
 import pickle
 
 from sklearn.datasets import load_digits
@@ -39,6 +38,8 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42,
     stratify=y
 )
+
+print("Dados divididos!")
 
 # =========================
 # REDUÇÃO DE DIMENSÃO PCA
@@ -77,7 +78,34 @@ print("Precisão do modelo:", score)
 with open("modelo_knn.pkl", "wb") as f:
     pickle.dump(knn, f)
 
-print("Modelo guardado!")
+print("Modelo KNN guardado!")
+
+# =========================
+# GUARDAR PCA
+# =========================
+
+with open("modelo_pca.pkl", "wb") as f:
+    pickle.dump(pca, f)
+
+print("Modelo PCA guardado!")
+
+# =========================
+# GUARDAR DADOS
+# =========================
+
+dados = {
+    "X_train": X_train,
+    "X_test": X_test,
+    "y_train": y_train,
+    "y_test": y_test,
+    "X_train_pca": X_train_pca,
+    "X_test_pca": X_test_pca
+}
+
+with open("dados.pkl", "wb") as f:
+    pickle.dump(dados, f)
+
+print("Dados guardados!")
 
 # =========================
 # PREDIÇÃO
@@ -106,6 +134,48 @@ plt.title(f"Predição: {predicao[0]}")
 plt.axis("off")
 
 plt.show()
+
+# =========================
+# CARREGAR MODELOS
+# =========================
+
+with open("modelo_knn.pkl", "rb") as f:
+    knn_carregado = pickle.load(f)
+
+with open("modelo_pca.pkl", "rb") as f:
+    pca_carregado = pickle.load(f)
+
+with open("dados.pkl", "rb") as f:
+    dados_carregados = pickle.load(f)
+
+print("Tudo carregado com sucesso!")
+
+# =========================
+# NOVO TESTE
+# =========================
+
+nova_imagem = dados_carregados["X_test"][20]
+
+nova_imagem_pca = pca_carregado.transform([nova_imagem])
+
+nova_predicao = knn_carregado.predict(nova_imagem_pca)
+
+print("Nova previsão:", nova_predicao[0])
+
+# =========================
+# MOSTRAR NOVA IMAGEM
+# =========================
+
+plt.figure(figsize=(4, 4))
+
+plt.imshow(nova_imagem.reshape(8, 8), cmap="gray")
+
+plt.title(f"Nova previsão: {nova_predicao[0]}")
+
+plt.axis("off")
+
+plt.show()
+import seaborn as sns
 
 # =========================
 # VISUALIZAÇÃO GRÁFICA
